@@ -1,0 +1,10 @@
+[
+  {"id":"A001","date":"2026-08-01","title":"Fall semester orientation begins","description":"Orientation sessions for first-year students and club introductions start next week in the Student Commons."},
+  {"id":"A002","date":"2026-08-03","title":"Library extended hours","description":"Founders Library will remain open until 11 PM from Monday through Thursday during exams week."},
+  {"id":"A003","date":"2026-08-05","title":"Campus shuttle update","description":"The shuttle route connecting North Hall to the Transit Hub will run every 12 minutes during peak hours."},
+  {"id":"A004","date":"2026-08-07","title":"New study pods available","description":"Innovation Commons has opened a new cluster of study pods for group work and quiet study."},
+  {"id":"A005","date":"2026-08-09","title":"Health check-up drive","description":"Free wellness screenings will be held at the Health & Counseling Center from 9 AM to 3 PM."},
+  {"id":"A006","date":"2026-08-10","title":"Lost item recovery","description":"Campus Security reminds students to check Lost Property in the Security Building before Friday."},
+  {"id":"A007","date":"2026-08-11","title":"Digital media workshop","description":"Join a hands-on editing workshop at Digital Arts Pavilion, open for all majors."},
+  {"id":"A008","date":"2026-08-12","title":"Weekly campus newsletter","description":"New event updates and safety tips have been published in the announcements feed."}
+]

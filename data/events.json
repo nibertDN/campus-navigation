@@ -1,0 +1,10 @@
+[
+  {"id":"E001","category":"Seminar","title":"AI in Campus Systems","date":"2026-08-14","time":"14:00","location":"Tech Innovation Lab","description":"An industry speaker shares how smart campus systems are built for sustainability."},
+  {"id":"E002","category":"Enrollment","title":"Summer course registration","date":"2026-08-16","time":"10:00","location":"Founders Library","description":"Advisors will support students as they finalize course selections for fall semester."},
+  {"id":"E003","category":"Engineering Week","title":"Design sprint challenge","date":"2026-08-18","time":"09:00","location":"Maple Engineering","description":"Teams compete to prototype sustainable solutions in a 24-hour design sprint."},
+  {"id":"E004","category":"Organization Event","title":"Club fair kickoff","date":"2026-08-19","time":"12:00","location":"Student Commons","description":"Meet over 50 campus clubs and organizations in the annual involvement fair."},
+  {"id":"E005","category":"Seminar","title":"Leadership panel","date":"2026-08-20","time":"16:00","location":"Innovation Commons","description":"Student leaders discuss how to balance academics, campus life, and career planning."},
+  {"id":"E006","category":"Enrollment","title":"Financial aid workshop","date":"2026-08-21","time":"11:00","location":"Heritage Center","description":"Learn how to manage tuition support, scholarships, and student budgeting."},
+  {"id":"E007","category":"Engineering Week","title":"Robotics expo","date":"2026-08-22","time":"15:00","location":"Maple Engineering","description":"Explore robotics demos from faculty labs, student teams, and industry partners."},
+  {"id":"E008","category":"Organization Event","title":"Volunteer fair","date":"2026-08-23","time":"13:00","location":"Student Commons","description":"Discover community service opportunities and meet local nonprofit partners."}
+]
