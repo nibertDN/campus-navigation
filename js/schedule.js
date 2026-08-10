@@ -9,6 +9,9 @@ export async function setupSchedulePage() {
   const emptyState = document.getElementById('scheduleEmpty');
   if (!searchInput || !daySelect || !viewSelect || !container || !emptyState) return;
 
+  const deepQuery = new URLSearchParams(window.location.search).get('q');
+  if (deepQuery) searchInput.value = deepQuery;
+
   const loadSchedules = async () => {
     const schedules = await loadJson('../data/schedules.json');
     const query = normalizeText(searchInput.value);

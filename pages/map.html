@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" href="../css/layout.css" />
   <link rel="stylesheet" href="../css/components.css" />
+  <link rel="stylesheet" href="../css/feed.css" />
   <link rel="stylesheet" href="../css/theme.css" />
   <link rel="icon" type="image/png" href="../assets/images/logo-cctc.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
@@ -15,6 +16,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body class="theme-light">
+  <script>
+    (function () {
+      try {
+        var settings = JSON.parse(localStorage.getItem('campusSettings') || '{}');
+        var isDark = settings.theme === 'dark';
+        document.body.classList.toggle('theme-light', !isDark);
+        document.body.classList.toggle('theme-dark', isDark);
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#0b1220' : '';
+      } catch (error) {}
+    })();
+  </script>
   <div class="app-shell">
     <header class="topbar">
       <a href="../index.html" class="brand">
@@ -24,9 +37,20 @@
       <div class="topbar-actions">
         <div class="search-widget">
           <input id="globalSearch" type="search" placeholder="Search buildings, rooms, events..." aria-label="Global search" />
-          <button aria-label="Search">🔍</button>
+          <button type="button" aria-label="Clear search" class="search-clear" hidden><i data-lucide="x" class="icon--outline" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Search" class="search-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></button>
         </div>
-        <button id="themeToggle" class="icon-btn" aria-label="Toggle dark mode">🌙</button>
+        <button id="themeToggle" class="icon-btn theme-toggle" aria-label="Toggle dark mode">
+          <svg class="theme-toggle-icon theme-toggle-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <g class="sun-rays">
+              <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </g>
+          </svg>
+          <svg class="theme-toggle-icon theme-toggle-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
       </div>
     </header>
     <nav class="main-nav" aria-label="Primary navigation">

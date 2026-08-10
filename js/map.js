@@ -1,10 +1,12 @@
 import { loadJson } from './dataLoader.js';
 import { normalizeText } from './utils.js';
 import { showToast } from './notifications.js';
+import { isBuildingOpenNow } from './availability.js';
 
 let map;
 let buildingMarkers = [];
 let buildingsData = [];
+let deepQueryApplied = false;
 
 export async function initializeMap() {
   const mapContainer = document.getElementById('campusMap');
@@ -47,8 +49,13 @@ function renderMarkers(buildings) {
 }
 
 function createBuildingPopup(building) {
+  const state = isBuildingOpenNow(building);
+  const statusLine = state
+    ? `<p><span class="availability-badge ${state.open ? 'availability-badge--open' : 'availability-badge--closed'}">${state.open ? '● ' : '◌ '}${state.label}</span></p>`
+    : '';
   return `<div style="max-width: 300px;">
     <h3>${building.name}</h3>
+    ${statusLine}
     <p>${building.description}</p>
     <p><strong>Departments:</strong> ${building.departments.join(', ')}</p>
     <p><strong>Facilities:</strong> ${building.facilities.join(', ')}</p>
@@ -101,6 +108,11 @@ export function setupBuildingDirectory() {
 
   const loadAndRender = async () => {
     const buildings = await loadJson('../data/buildings.json');
+    if (!deepQueryApplied) {
+      const deepQuery = new URLSearchParams(window.location.search).get('q');
+      if (deepQuery) searchInput.value = deepQuery;
+      deepQueryApplied = true;
+    }
     const query = normalizeText(searchInput.value);
     const category = categorySelect.value;
     const sort = sortSelect.value;
@@ -124,9 +136,13 @@ export function setupBuildingDirectory() {
     emptyState.classList.add('hidden');
 
     sorted.forEach((building) => {
+      const state = isBuildingOpenNow(building);
+      const badge = state
+        ? `<span class="availability-badge ${state.open ? 'availability-badge--open' : 'availability-badge--closed'}">${state.open ? '● Open now' : '◌ Closed'}</span>`
+        : '';
       const card = document.createElement('article');
       card.className = 'feature-card';
-      card.innerHTML = `<div style="display:flex;gap:1rem;align-items:center;"><div style="width:68px;height:68px;border-radius:18px;background:var(--surface-strong);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--primary);">${building.name[0]}</div><div><h3>${building.name}</h3><p>${building.type} • ${building.floorCount} floors</p></div></div><p style="margin:1rem 0 0;color:var(--muted);">${building.description}</p><p style="margin:0.75rem 0 0;font-size:0.95rem;color:var(--muted);"><strong>Departments:</strong> ${building.departments.join(', ')}</p>`;
+      card.innerHTML = `<div style="display:flex;gap:1rem;align-items:center;justify-content:space-between;"><div style="display:flex;gap:1rem;align-items:center;"><div style="width:68px;height:68px;border-radius:18px;background:var(--surface-strong);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--primary);">${building.name[0]}</div><div><h3>${building.name}</h3><p>${building.type} • ${building.floorCount} floors</p></div></div>${badge}</div><p style="margin:1rem 0 0;color:var(--muted);">${building.description}</p><p style="margin:0.75rem 0 0;font-size:0.95rem;color:var(--muted);"><strong>Departments:</strong> ${building.departments.join(', ')}</p><p style="margin:0.4rem 0 0;font-size:0.9rem;color:var(--muted);"><strong>Hours:</strong> ${building.officeHours}</p>`;
       listContainer.appendChild(card);
     });
   };

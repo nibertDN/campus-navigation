@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/base.css" />
   <link rel="stylesheet" href="css/layout.css" />
   <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/feed.css" />
   <link rel="stylesheet" href="css/theme.css" />
   <link rel="icon" type="image/png" href="assets/images/logo-cctc.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,6 +16,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 </head>
 <body class="theme-light home-page">
+  <script>
+    (function () {
+      try {
+        var settings = JSON.parse(localStorage.getItem('campusSettings') || '{}');
+        var isDark = settings.theme === 'dark';
+        document.body.classList.toggle('theme-light', !isDark);
+        document.body.classList.toggle('theme-dark', isDark);
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        document.documentElement.style.backgroundColor = isDark ? '#0b1220' : '';
+      } catch (error) {}
+    })();
+  </script>
   <div class="app-shell">
     <header class="topbar">
       <a href="index.html" class="brand">
@@ -25,9 +38,19 @@
         <div class="search-widget">
           <input id="globalSearch" type="search" placeholder="Search buildings, rooms, events..." aria-label="Global search" />
           <button type="button" aria-label="Clear search" class="search-clear" hidden><i data-lucide="x" class="icon--outline" aria-hidden="true"></i></button>
-          <button type="button" aria-label="Search" class="search-btn"><i data-lucide="search" class="icon--outline" aria-hidden="true"></i></button>
+          <button type="button" aria-label="Search" class="search-btn"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg></button>
         </div>
-        <button id="themeToggle" class="icon-btn" aria-label="Toggle dark mode">🌙</button>
+        <button id="themeToggle" class="icon-btn theme-toggle" aria-label="Toggle dark mode">
+          <svg class="theme-toggle-icon theme-toggle-sun" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4"/>
+            <g class="sun-rays">
+              <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+            </g>
+          </svg>
+          <svg class="theme-toggle-icon theme-toggle-moon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -130,8 +153,118 @@
         </div>
         <div class="content-right card card-surface">
           <div class="media-card">
-            <img src="assets/images/campus-hero.svg" alt="Campus illustration" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 300" role="img" aria-label="Campus illustration" style="width:100%;height:auto;">
+              <defs>
+                <linearGradient id="skyCampus" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="var(--primary-soft, rgba(14,157,243,0.25))"/>
+                  <stop offset="1" stop-color="var(--surface-strong, #eef2f8)"/>
+                </linearGradient>
+                <linearGradient id="buildCampus" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="var(--primary-strong, #0369c4)"/>
+                  <stop offset="1" stop-color="var(--primary, #0e9df3)"/>
+                </linearGradient>
+              </defs>
+              <rect width="480" height="300" rx="24" fill="url(#skyCampus)"/>
+              <circle cx="410" cy="56" r="26" fill="var(--accent, #19d9a0)" opacity="0.85"/>
+              <path d="M0 236 C 90 208, 150 252, 240 230 S 400 214, 480 236 V 300 H 0 Z" fill="var(--surface, #ffffff)" opacity="0.9"/>
+              <path d="M0 258 C 110 236, 210 274, 320 252 S 440 244, 480 258 V 300 H 0 Z" fill="var(--surface-strong, #eef2f8)"/>
+              <g stroke="var(--primary, #0e9df3)" stroke-width="5" stroke-linecap="round" fill="none">
+                <path d="M60 244 C 120 212, 150 246, 210 228"/>
+                <path d="M270 244 C 320 218, 350 240, 410 222"/>
+              </g>
+              <g fill="var(--accent, #19d9a0)" opacity="0.9">
+                <circle cx="96" cy="222" r="5"/>
+                <circle cx="150" cy="218" r="4"/>
+                <circle cx="264" cy="210" r="5"/>
+                <circle cx="430" cy="206" r="4"/>
+              </g>
+              <g fill="url(#buildCampus)">
+                <rect x="96" y="140" width="52" height="86" rx="8"/>
+                <rect x="172" y="108" width="58" height="118" rx="8"/>
+                <rect x="258" y="132" width="46" height="94" rx="8"/>
+              </g>
+              <g fill="var(--surface, #ffffff)" opacity="0.85">
+                <rect x="108" y="164" width="10" height="10" rx="2"/>
+                <rect x="126" y="164" width="10" height="10" rx="2"/>
+                <rect x="186" y="128" width="10" height="10" rx="2"/>
+                <rect x="204" y="128" width="10" height="10" rx="2"/>
+                <rect x="186" y="148" width="10" height="10" rx="2"/>
+                <rect x="204" y="148" width="10" height="10" rx="2"/>
+                <rect x="270" y="156" width="9" height="9" rx="2"/>
+              </g>
+              <rect x="110" y="222" width="24" height="8" rx="4" fill="var(--warning, #f59e0b)"/>
+              <rect x="113" y="226" width="6" height="14" rx="2" fill="var(--muted, #5d6b82)"/>
+              <rect x="200" y="226" width="6" height="14" rx="2" fill="var(--muted, #5d6b82)"/>
+              <rect x="253" y="224" width="5" height="13" rx="2" fill="var(--muted, #5d6b82)"/>
+            </svg>
           </div>
+        </div>
+      </section>
+
+      <section class="section-feed section-medium" aria-labelledby="feedHeading">
+        <div class="section-heading">
+          <span class="eyebrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v-2a1 1 0 0 1 1-1h1.5l8-4.8a1 1 0 0 1 1.5.86v12.88a1 1 0 0 1-1.5.86L5.5 13H4a1 1 0 0 1-1-1z"/><path d="M17 8.5a4.2 4.2 0 0 1 0 7"/><path d="M19.5 6.8a7.4 7.4 0 0 1 0 10.4"/></svg> CCTCCampus feed</span>
+          <h2 id="feedHeading">Posts, announcements &amp; what's open right now.</h2>
+          <p>Follow school updates, publish campus announcements, and see live building availability — all in one place.</p>
+        </div>
+
+        <div class="feed-layout">
+          <div class="post-composer panel-card">
+            <h3>Post an announcement</h3>
+            <p class="composer-sub">Share a campus update. It hits the feed instantly with a notification.</p>
+            <form id="postForm">
+              <div class="form-group">
+                <label for="postCategory">Category</label>
+                <select id="postCategory">
+                  <option value="General">General</option>
+                  <option value="Academic">Academic</option>
+                  <option value="Event">Event</option>
+                  <option value="Safety">Safety</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="postTitle">Title</label>
+                <input id="postTitle" type="text" placeholder="e.g. Library exam-week hours" maxlength="80" />
+              </div>
+              <div class="form-group">
+                <label for="postMessage">Message</label>
+                <textarea id="postMessage" rows="3" placeholder="What should the campus know?" maxlength="300"></textarea>
+              </div>
+              <button type="submit" class="button button-primary" style="width:100%;">Publish announcement</button>
+            </form>
+          </div>
+
+          <div>
+            <nav class="feed-filters" id="feedFilters" aria-label="Filter feed">
+              <button type="button" class="filter-chip active" data-filter="all">All</button>
+              <button type="button" class="filter-chip" data-filter="General">General</button>
+              <button type="button" class="filter-chip" data-filter="Academic">Academic</button>
+              <button type="button" class="filter-chip" data-filter="Event">Event</button>
+              <button type="button" class="filter-chip" data-filter="Safety">Safety</button>
+            </nav>
+            <div id="homeFeedList" class="feed-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section-open section-medium" aria-labelledby="openNowHeading">
+        <div class="section-heading">
+          <span class="eyebrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> Live availability</span>
+          <h2 id="openNowHeading">Open on campus right now</h2>
+          <p>Building status is computed from current office hours and live class schedules.</p>
+        </div>
+        <div id="openNowStats"></div>
+        <div id="openNowGrid" class="grid-3"></div>
+      </section>
+
+      <section class="section-upcoming section-medium" aria-labelledby="eventsHeading">
+        <div class="section-heading">
+          <span class="eyebrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg> Upcoming events</span>
+          <h2 id="eventsHeading">What's next on campus</h2>
+        </div>
+        <div id="eventMiniList" class="event-mini-list"></div>
+        <div class="section-actions">
+          <a class="button button-secondary" href="pages/events.html">View all events</a>
         </div>
       </section>
     </main>
@@ -149,17 +282,6 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/lucide.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      if (window.lucide && typeof lucide.createIcons === 'function') {
-        lucide.createIcons();
-      }
-    });
-  </script>
   <script type="module" src="js/main.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <script>
-    lucide.createIcons();
-  </script>
 </body>
 </html>

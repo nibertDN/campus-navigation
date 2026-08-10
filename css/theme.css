@@ -1,86 +1,373 @@
+/* ============================================================
+   Campus Navigation Assistant — light & dark themes
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Light theme
+   ------------------------------------------------------------ */
+
 body.theme-light {
-  background-color: #f5f7ff;
+  background-color: #f2f5fa;
 }
 
 body.theme-light .topbar,
-body.theme-light .main-nav,
-body.theme-light .site-footer,
+body.theme-light .site-footer {
+  background: rgba(255, 255, 255, 0.86);
+}
+
 body.theme-light .panel-card,
 body.theme-light .card,
-body.theme-light .search-widget,
-body.theme-light .toast {
+body.theme-light .search-widget {
   background: #ffffff;
 }
 
 body.theme-light .nav-link {
-  color: #111827;
+  color: #4b5a73;
 }
 
-body.theme-light .nav-link:hover,
-body.theme-light .nav-link.active,
-body.theme-light .nav-link:focus,
-body.theme-light .nav-link:active {
-  background: rgba(14, 165, 255, 0.10);
-  color: #111827;
-  border-color: rgba(14, 165, 255, 0.15);
+body.theme-light .nav-link:hover {
+  background: rgba(14, 157, 243, 0.08);
+  color: #17233a;
+  border-color: rgba(14, 157, 243, 0.18);
+}
+
+body.theme-light .nav-link.active {
+  background: linear-gradient(135deg, #0a2f4a 0%, #0e9df3 100%);
+  color: #ffffff;
+  border-color: transparent;
 }
 
 body.theme-light .nav-link:hover .nav-icon,
 body.theme-light .nav-link.active .nav-icon {
-  color: #0ea5ff;
+  color: inherit;
+}
+
+body.theme-light .nav-link svg {
+  color: #7d8ba1;
+}
+
+body.theme-light .nav-link.active svg {
+  color: #ffffff;
+}
+
+body.theme-light .feature-card,
+body.theme-light .mini-card,
+body.theme-light .stat-item {
+  background: #ffffff;
+}
+
+body.theme-light .feature-card:hover {
+  border-color: rgba(14, 157, 243, 0.32);
+}
+
+/* ------------------------------------------------------------
+   Dark theme
+   ------------------------------------------------------------ */
+
+body.theme-dark {
+  color-scheme: dark;
+  --bg: #0b1220;
+  --surface: #111a2b;
+  --surface-strong: #182338;
+  --surface-soft: rgba(17, 26, 43, 0.72);
+  --text: #e8eef8;
+  --muted: #8fa3bd;
+  --border: #22304a;
+  --primary: #38bdf8;
+  --primary-strong: #0ea5e9;
+  --primary-soft: rgba(56, 189, 248, 0.12);
+  --accent: #2ee6ae;
+  --brand-gradient: linear-gradient(135deg, #0e3a5c 0%, #0ea5e9 100%);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35), 0 4px 14px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.5);
+  background-color: #0b1220;
+  background-image:
+    radial-gradient(1100px 520px at 88% -12%, rgba(14, 165, 233, 0.09), transparent 60%),
+    radial-gradient(900px 480px at -12% 38%, rgba(46, 230, 174, 0.05), transparent 55%);
+}
+
+body.theme-dark h1,
+body.theme-dark h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark h5,
+body.theme-dark h6 {
+  color: #f1f6fd;
+}
+
+body.theme-dark .eyebrow {
+  color: #7dd3fc;
 }
 
 body.theme-dark .topbar,
-body.theme-dark .main-nav,
-body.theme-dark .site-footer,
-body.theme-dark .panel-card,
-body.theme-dark .card,
-body.theme-dark .search-widget,
-body.theme-dark .toast {
-  background: #111827;
+body.theme-dark .site-footer {
+  background: rgba(14, 20, 34, 0.88);
 }
 
-body.theme-dark .search-widget input,
+body.theme-dark .panel-card,
+body.theme-dark .card,
+body.theme-dark .feature-card,
+body.theme-dark .mini-card,
+body.theme-dark .stat-item,
+body.theme-dark .search-widget,
+body.theme-dark .empty-state,
+body.theme-dark .table-wrapper {
+  background: #111a2b;
+}
+
+body.theme-dark .card,
+body.theme-dark .panel-card {
+  box-shadow: var(--shadow-md);
+}
+
+body.theme-dark .card-glow {
+  background: linear-gradient(180deg, rgba(23, 35, 58, 0.9), rgba(17, 26, 43, 0.85));
+}
+
+body.theme-dark .search-widget,
 body.theme-dark .form-group input,
 body.theme-dark .form-group select,
 body.theme-dark .form-group textarea {
-  background: #0f131b;
-  border-color: #334155;
+  background: #0d1524;
+  border-color: #22304a;
   color: #e2e8f0;
 }
 
-body.theme-dark .nav-link,
-body.theme-dark .footer-copy,
-body.theme-dark .footer-links a,
-body.theme-dark .feature-card,
-body.theme-dark .mini-card,
-body.theme-dark .panel-card {
-  color: #e2e8f0;
+body.theme-dark .search-widget:focus-within,
+body.theme-dark .form-group input:focus,
+body.theme-dark .form-group select:focus,
+body.theme-dark .form-group textarea:focus {
+  border-color: #38bdf8;
+  background: #0f1830;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
 }
 
-body.theme-dark .nav-link.active,
-body.theme-dark .nav-link:hover,
-body.theme-dark .nav-link:focus,
-body.theme-dark .nav-link:active {
-  background: #1e293b;
-  color: #f8fafc;
-  border-color: rgba(96, 165, 250, 0.3);
+body.theme-dark .search-widget input {
+  color: #e8eef8;
+}
+
+body.theme-dark .nav-link {
+  color: #93a7c4;
+}
+
+body.theme-dark .nav-link:hover {
+  background: rgba(56, 189, 248, 0.1);
+  color: #f1f5fd;
+  border-color: rgba(56, 189, 248, 0.22);
+}
+
+body.theme-dark .nav-link.active {
+  background: linear-gradient(135deg, #0e3a5c 0%, #0ea5e9 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 26px rgba(14, 165, 233, 0.3);
 }
 
 body.theme-dark .nav-link:hover .nav-icon,
 body.theme-dark .nav-link.active .nav-icon {
-  color: #60a5fa;
+  color: inherit;
 }
 
-body.theme-dark .button-secondary {
-  border-color: #334155;
+body.theme-dark .nav-link.active svg {
+  color: #ffffff;
 }
 
 body.theme-dark .button-primary {
-  box-shadow: 0 15px 35px rgba(14, 165, 255, 0.22);
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  box-shadow: 0 14px 32px rgba(14, 165, 233, 0.35);
+}
+
+body.theme-dark .button-secondary {
+  background: #111a2b;
+  border-color: #22304a;
+}
+
+body.theme-dark .button-secondary:hover {
+  border-color: #38bdf8;
+  color: #7dd3fc;
+}
+
+body.theme-dark .icon-btn {
+  background: #111a2b;
+  border-color: #22304a;
+}
+
+body.theme-dark .icon-btn:hover {
+  background: #182338;
+  border-color: #38bdf8;
+}
+
+body.theme-dark .feature-card:hover {
+  border-color: rgba(56, 189, 248, 0.35);
+}
+
+body.theme-dark .stat-item h3 {
+  background: linear-gradient(135deg, #7dd3fc, #38bdf8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+body.theme-dark .highlight-grid div {
+  background: #182338;
+  border-color: #22304a;
+}
+
+body.theme-dark .map-card {
+  background-image: linear-gradient(140deg, rgba(56, 189, 248, 0.12), rgba(14, 22, 34, 0.9));
+  border-color: rgba(56, 189, 248, 0.25);
+  color: #e2e8f0;
 }
 
 body.theme-dark .empty-state {
-  background: #111827;
-  border-color: #334155;
+  border-color: #22304a;
+}
+
+body.theme-dark .toast {
+  background: rgba(17, 26, 43, 0.98);
+  border: 1px solid #22304a;
+}
+
+body.theme-dark thead {
+  background: #182338;
+}
+
+body.theme-dark th,
+body.theme-dark td {
+  border-bottom-color: #22304a;
+}
+
+body.theme-dark th {
+  color: #e8eef8;
+}
+
+body.theme-dark .map-popup {
+  background: #111a2b;
+  border-color: #22304a;
+}
+
+body.theme-dark .feature-icon {
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+}
+
+body.theme-dark .status-chip {
+  box-shadow: 0 6px 18px rgba(46, 230, 174, 0.3);
+}
+
+/* ------------------------------------------------------------
+   Animated theme toggle
+   ------------------------------------------------------------ */
+
+.theme-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  color: var(--muted);
+}
+
+.theme-toggle:active {
+  transform: scale(0.92);
+}
+
+.theme-toggle-icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 20px;
+  height: 20px;
+  transition: opacity 0.4s ease, transform 0.45s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.theme-toggle-sun {
+  color: var(--warning, #f59e0b);
+}
+
+.sun-rays {
+  transform-origin: center;
+  animation: theme-sun-spin 14s linear infinite;
+}
+
+.theme-toggle-moon {
+  color: #7dd3fc;
+  opacity: 0;
+  transform: scale(0.3) rotate(-100deg);
+}
+
+body.theme-dark .theme-toggle-sun {
+  opacity: 0;
+  transform: scale(0.3) rotate(100deg);
+}
+
+body.theme-dark .theme-toggle-moon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+  animation: theme-moon-pop 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+body.theme-dark .sun-rays {
+  animation: none;
+}
+
+@keyframes theme-sun-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes theme-moon-pop {
+  0% {
+    transform: scale(0.3) rotate(-100deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.15) rotate(8deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------
+   Rotating nav link tints
+   Each nav item carries its own aesthetic color; the tints
+   cycle across the links every few minutes.
+   ------------------------------------------------------------ */
+
+.nav-link--tint-1 { --nav-tint: 14, 157, 243; }
+.nav-link--tint-2 { --nav-tint: 56, 189, 248; }
+.nav-link--tint-3 { --nav-tint: 25, 217, 160; }
+.nav-link--tint-4 { --nav-tint: 99, 102, 241; }
+.nav-link--tint-5 { --nav-tint: 245, 158, 11; }
+.nav-link--tint-6 { --nav-tint: 52, 211, 153; }
+.nav-link--tint-7 { --nav-tint: 168, 85, 247; }
+.nav-link--tint-8 { --nav-tint: 244, 114, 182; }
+
+body.theme-light .nav-link[class*="nav-link--tint"]:not(.active),
+body.theme-dark .nav-link[class*="nav-link--tint"]:not(.active) {
+  background: linear-gradient(135deg, rgba(var(--nav-tint), 0.16), rgba(var(--nav-tint), 0.04));
+  border-color: rgba(var(--nav-tint), 0.22);
+  color: var(--text);
+  transition: color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease,
+              transform 0.18s ease, background-image 1s ease;
+}
+
+body.theme-light .nav-link[class*="nav-link--tint"]:not(.active):hover,
+body.theme-dark .nav-link[class*="nav-link--tint"]:not(.active):hover {
+  background: linear-gradient(135deg, rgba(var(--nav-tint), 0.3), rgba(var(--nav-tint), 0.1));
+  border-color: rgba(var(--nav-tint), 0.4);
+  box-shadow: 0 6px 14px rgba(var(--nav-tint), 0.18);
+}
+
+body.theme-light .nav-link[class*="nav-link--tint"]:not(.active) svg,
+body.theme-dark .nav-link[class*="nav-link--tint"]:not(.active) svg {
+  color: rgb(var(--nav-tint));
+}
+
+body.theme-light .nav-link[class*="nav-link--tint"].active svg,
+body.theme-dark .nav-link[class*="nav-link--tint"].active svg {
+  color: #ffffff;
 }

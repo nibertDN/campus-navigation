@@ -3,10 +3,12 @@ import { setupBuildingDirectory, initializeMap } from './map.js';
 import { setupSchedulePage } from './schedule.js';
 import { setupQRPage, applySettings as applyQRSettings } from './qr.js';
 import { setupLostFoundPage } from './lostfound.js';
-import { setupProfilePage } from './profile.js';
+import { setupProfilePage, renderAccountSidebar } from './profile.js';
 import { setupSettingsPage, applyTheme, loadSavedSettings } from './settings.js';
 import { showToast } from './notifications.js';
 import { storage } from './storage.js';
+import { setupHomePage, setupAnnouncementsPage, setupEventsPage } from './feed.js';
+import { getRoomUsage } from './availability.js';
 
 let animationEngine = null;
 
@@ -16,13 +18,20 @@ applyTheme(settings.theme);
 applyQRSettings(settings);
 
 async function initializeAnimations() {
+  const revealFallback = () => {
+    document.querySelectorAll('.animation-ready').forEach((el) => el.classList.remove('animation-ready'));
+  };
+
   try {
     const module = await import('https://cdn.jsdelivr.net/npm/animejs@4.5.0/+esm');
     animationEngine = module.animate;
   } catch (error) {
     console.warn('Animation setup skipped:', error);
+    revealFallback();
     return;
   }
+
+  const safetyTimer = window.setTimeout(revealFallback, 1800);
 
   const navLinks = document.querySelectorAll('.main-nav .nav-link');
   if (navLinks.length) {
@@ -154,10 +163,13 @@ function initializePage() {
     setupSettingsPage();
   }
   if (currentPage === 'events.html') {
-    setupEventPage();
+    setupEventsPage();
   }
   if (currentPage === 'announcements.html') {
     setupAnnouncementsPage();
+  }
+  if (currentPage === 'index.html' || currentPage === '') {
+    setupHomePage();
   }
   if (currentPage === 'emergency.html') {
     // no extra initialization required
@@ -167,7 +179,38 @@ function initializePage() {
   initializeSearch();
   loadPersistentSettings();
   renderLucideIcons();
+  renderAccountSidebar();
+  setupNavTintRotation();
   void initializeAnimations();
+}
+
+const NAV_TINT_CLASSES = Array.from({ length: 8 }, (_, index) => `nav-link--tint-${index + 1}`);
+
+function setupNavTintRotation() {
+  const navLinks = Array.from(document.querySelectorAll('.main-nav .nav-link'));
+  if (navLinks.length < 2) return;
+
+  const tintCount = Math.min(NAV_TINT_CLASSES.length, navLinks.length);
+  const tintFor = (link) => NAV_TINT_CLASSES.find((cls) => link.classList.contains(cls)) || NAV_TINT_CLASSES[0];
+
+  const applyTints = () => {
+    navLinks.forEach((link, index) => {
+      link.classList.remove(...NAV_TINT_CLASSES);
+      link.classList.add(NAV_TINT_CLASSES[index % tintCount]);
+    });
+  };
+
+  applyTints();
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  window.setInterval(() => {
+    const rotated = navLinks.map((_, index) => tintFor(navLinks[(index + 1) % navLinks.length]));
+    navLinks.forEach((link, index) => {
+      link.classList.remove(...NAV_TINT_CLASSES);
+      link.classList.add(rotated[index]);
+    });
+  }, 3 * 60 * 1000);
 }
 
 async function initializeSearch() {
@@ -182,6 +225,11 @@ async function initializeSearch() {
     fetch(currentPage.startsWith('index.html') || currentPage === '' ? './data/events.json' : '../data/events.json').then((r) => r.json()),
   ]);
 
+  const pageUrl = (page, query) => {
+    const base = currentPage.startsWith('index.html') || currentPage === '' ? `./pages/${page}` : `./${page}`;
+    return query ? `${base}?q=${encodeURIComponent(query)}` : base;
+  };
+
   setupGlobalSearch([
     {
       type: 'Building',
@@ -189,7 +237,7 @@ async function initializeSearch() {
       fields: ['name', 'description', 'departments', 'facilities'],
       titleExtractor: (item) => item.name,
       subtitleExtractor: (item) => item.description,
-      link: (item) => currentPage.startsWith('index.html') || currentPage === '' ? `./pages/buildings.html` : `./buildings.html`,
+      link: (item) => pageUrl('buildings.html', item.name),
     },
     {
       type: 'Room',
@@ -197,15 +245,15 @@ async function initializeSearch() {
       fields: ['roomNumber', 'buildingName', 'department', 'equipment'],
       titleExtractor: (item) => `${item.buildingName} ${item.roomNumber}`,
       subtitleExtractor: (item) => `${item.department} • Capacity ${item.capacity}`,
-      link: (item) => currentPage.startsWith('index.html') || currentPage === '' ? `./pages/classrooms.html` : `./classrooms.html`,
+      link: (item) => pageUrl('classrooms.html', `${item.buildingName} ${item.roomNumber}`),
     },
     {
       type: 'Schedule',
       items: schedules,
-      fields: ['subject', 'instructor', 'roomNumber', 'department'],
+      fields: ['subject', 'instructor', 'roomNumber', 'buildingId', 'department'],
       titleExtractor: (item) => item.subject,
-      subtitleExtractor: (item) => `${item.day} • ${item.roomNumber}`,
-      link: (item) => currentPage.startsWith('index.html') || currentPage === '' ? `./pages/schedule.html` : `./schedule.html`,
+      subtitleExtractor: (item) => `${item.day} • ${item.start} - ${item.end} • Room ${item.roomNumber}`,
+      link: (item) => pageUrl('schedule.html', item.subject),
     },
     {
       type: 'Announcement',
@@ -213,49 +261,17 @@ async function initializeSearch() {
       fields: ['title', 'description'],
       titleExtractor: (item) => item.title,
       subtitleExtractor: (item) => item.description,
-      link: (item) => currentPage.startsWith('index.html') || currentPage === '' ? `./pages/announcements.html` : `./announcements.html`,
+      link: (item) => pageUrl('announcements.html', item.title),
     },
     {
       type: 'Event',
       items: events,
       fields: ['title', 'description', 'location'],
       titleExtractor: (item) => item.title,
-      subtitleExtractor: (item) => item.location,
-      link: (item) => currentPage.startsWith('index.html') || currentPage === '' ? `./pages/events.html` : `./events.html`,
+      subtitleExtractor: (item) => `${item.category} • ${item.date} ${item.time} • ${item.location}`,
+      link: (item) => pageUrl('events.html', item.title),
     },
   ]);
-
-  // wire search clear button and focus-expand behavior
-  try {
-    const searchWidget = searchInput.closest('.search-widget');
-    const clearBtn = searchWidget ? searchWidget.querySelector('.search-clear') : null;
-    if (clearBtn) {
-      const toggleClear = () => {
-        clearBtn.hidden = !searchInput.value.trim();
-      };
-      toggleClear();
-      searchInput.addEventListener('input', toggleClear);
-      clearBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        searchInput.value = '';
-        toggleClear();
-        searchInput.focus();
-        // if there is a search handler, dispatch an input event
-        searchInput.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-
-      // expand on focus for desktop
-      searchInput.addEventListener('focus', () => {
-        if (window.innerWidth > 980) searchWidget.classList.add('focus-expand');
-      });
-      searchInput.addEventListener('blur', () => {
-        if (window.innerWidth > 980 && !searchInput.value) searchWidget.classList.remove('focus-expand');
-      });
-    }
-  } catch (err) {
-    // ignore wiring errors
-    console.warn('Search widget wiring failed', err);
-  }
 }
 
 function setupThemeToggle() {
@@ -278,56 +294,6 @@ function loadPersistentSettings() {
   document.documentElement.style.fontSize = fontSize === 'large' ? '18px' : fontSize === 'small' ? '14px' : '16px';
 }
 
-async function loadEvents() {
-  const response = await fetch('../data/events.json');
-  return response.ok ? response.json() : [];
-}
-
-async function loadAnnouncements() {
-  const response = await fetch('../data/announcements.json');
-  return response.ok ? response.json() : [];
-}
-
-function setupEventPage() {
-  const container = document.getElementById('eventCards');
-  const emptyState = document.getElementById('eventEmpty');
-  if (!container || !emptyState) return;
-  loadEvents().then((events) => {
-    container.innerHTML = '';
-    if (!events.length) {
-      emptyState.classList.remove('hidden');
-      return;
-    }
-    emptyState.classList.add('hidden');
-    events.forEach((event) => {
-      const card = document.createElement('article');
-      card.className = 'feature-card';
-      card.innerHTML = `<span class="eyebrow">${event.category}</span><h3>${event.title}</h3><p>${event.date} • ${event.time}</p><p style="margin:0.75rem 0;color:var(--muted);">${event.location}</p><p>${event.description}</p>`;
-      container.appendChild(card);
-    });
-  });
-}
-
-function setupAnnouncementsPage() {
-  const container = document.getElementById('announcementFeed');
-  const emptyState = document.getElementById('announcementEmpty');
-  if (!container || !emptyState) return;
-  loadAnnouncements().then((announcements) => {
-    container.innerHTML = '';
-    if (!announcements.length) {
-      emptyState.classList.remove('hidden');
-      return;
-    }
-    emptyState.classList.add('hidden');
-    announcements.forEach((item) => {
-      const card = document.createElement('article');
-      card.className = 'feature-card';
-      card.innerHTML = `<p style="color:var(--muted);font-size:0.95rem;">${item.date}</p><h3>${item.title}</h3><p>${item.description}</p>`;
-      container.appendChild(card);
-    });
-  });
-}
-
 function setupClassroomPage() {
   const searchInput = document.getElementById('roomSearch');
   const buildingSelect = document.getElementById('roomBuilding');
@@ -336,21 +302,28 @@ function setupClassroomPage() {
   const emptyState = document.getElementById('roomEmpty');
   if (!searchInput || !buildingSelect || !departmentSelect || !tbody || !emptyState) return;
 
-  fetch('../data/rooms.json')
-    .then((response) => response.json())
-    .then((rooms) => {
+  Promise.all([
+    fetch('../data/rooms.json').then((response) => response.json()),
+    fetch('../data/schedules.json').then((response) => response.json()),
+  ])
+    .then(([rooms, schedules]) => {
+      const deepQuery = new URLSearchParams(window.location.search).get('q');
+      if (deepQuery) searchInput.value = deepQuery;
+
       const buildings = [...new Set(rooms.map((room) => room.buildingName))].sort();
       const departments = [...new Set(rooms.map((room) => room.department))].sort();
       buildings.forEach((building) => buildingSelect.appendChild(new Option(building, building)));
       departments.forEach((department) => departmentSelect.appendChild(new Option(department, department)));
 
       const render = () => {
-        const query = searchInput.value.toLowerCase();
+        const query = searchInput.value.trim().toLowerCase();
+        const tokens = query.split(/\s+/).filter(Boolean);
         const building = buildingSelect.value;
         const department = departmentSelect.value;
         const filtered = rooms.filter((room) => {
-          const matchesSearch = [room.roomNumber, room.buildingName, room.department, room.availability, ...(room.equipment || [])]
-            .some((value) => String(value).toLowerCase().includes(query));
+          const searchable = [room.roomNumber, room.buildingName, room.department, room.availability, ...(room.equipment || [])]
+            .map((value) => String(value).toLowerCase());
+          const matchesSearch = tokens.length === 0 || tokens.every((token) => searchable.some((value) => value.includes(token)));
           const matchesBuilding = building === 'all' || room.buildingName === building;
           const matchesDepartment = department === 'all' || room.department === department;
           return matchesSearch && matchesBuilding && matchesDepartment;
@@ -363,8 +336,12 @@ function setupClassroomPage() {
         }
         emptyState.classList.add('hidden');
         filtered.forEach((room) => {
+          const usage = getRoomUsage(room, schedules);
+          const statusCell = usage.inUse
+            ? `<span class="availability-badge availability-badge--busy">In use <small>until ${usage.until}</small></span>`
+            : `<span class="availability-badge availability-badge--open">Available now</span>`;
           const row = document.createElement('tr');
-          row.innerHTML = `<td>${room.roomNumber}</td><td>${room.buildingName}</td><td>${room.department}</td><td>${room.capacity}</td><td>${room.floor}</td><td>${room.equipment.join(', ')}</td><td>${room.availability}</td>`;
+          row.innerHTML = `<td>${room.roomNumber}</td><td>${room.buildingName}</td><td>${room.department}</td><td>${room.capacity}</td><td>${room.floor}</td><td>${room.equipment.join(', ')}</td><td>${statusCell}</td>`;
           tbody.appendChild(row);
         });
       };

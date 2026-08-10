@@ -10,6 +10,7 @@ export async function setupQRPage() {
   const roomFilter = document.getElementById('qrRoomFilter');
   const qrPreview = document.getElementById('qrPreview');
   const scanButton = document.getElementById('scanButton');
+  const simulateButton = document.getElementById('simulateScanButton');
   const attendanceList = document.getElementById('attendanceList');
   const attendanceEmpty = document.getElementById('attendanceEmpty');
 
@@ -29,13 +30,58 @@ export async function setupQRPage() {
   });
 
   scanButton.addEventListener('click', () => startScanner(roomFilter.value, attendanceList, attendanceEmpty));
+
+  if (simulateButton) {
+    simulateButton.addEventListener('click', () => {
+      const selected = rooms.find((room) => room.qrCodeKey === roomFilter.value);
+      if (!selected) {
+        showToast('No room selected', 'Pick a classroom first.', 'warning');
+        return;
+      }
+      simulateScan(selected, attendanceList, attendanceEmpty);
+    });
+  }
+
   loadAttendance(attendanceList, attendanceEmpty);
   renderQRPreview(rooms[0], qrPreview);
 }
 
 function renderQRPreview(room, previewElement) {
   if (!room || !previewElement) return;
-  previewElement.innerHTML = `<div><strong>${room.buildingName} ${room.roomNumber}</strong><p style="color:var(--muted);margin-top:0.5rem;">QR key: ${room.qrCodeKey}</p></div>`;
+
+  const previousCanvas = previewElement.querySelector('#qrSampleCanvas');
+  if (previousCanvas) previousCanvas.remove();
+
+  previewElement.innerHTML = `
+    <strong>${room.buildingName} ${room.roomNumber}</strong>
+    <p style="color:var(--muted);margin-top:0.5rem;">QR key: <code>${room.qrCodeKey}</code></p>
+    <div id="qrSampleCanvas" style="background:#ffffff;border-radius:16px;padding:10px;display:inline-block;margin-top:0.9rem;box-shadow:0 8px 20px rgba(15,23,42,0.12);"></div>
+    <p style="color:var(--muted);font-size:0.85rem;margin-top:0.9rem;">Scan this code with the camera to check in to this room.</p>
+  `;
+
+  const canvasHost = previewElement.querySelector('#qrSampleCanvas');
+  if (window.QRCode && typeof QRCode === 'function') {
+    new QRCode(canvasHost, {
+      text: room.qrCodeKey,
+      width: 168,
+      height: 168,
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+    const canvas = canvasHost.querySelector('canvas');
+    if (canvas && !canvasHost.querySelector('img')) {
+      canvas.style.display = 'block';
+      canvas.style.margin = '0 auto';
+    }
+  } else {
+    canvasHost.innerHTML = '<p style="padding:0.5rem;color:var(--muted);">QR library unavailable.</p>';
+  }
+}
+
+function simulateScan(room, container, emptyState) {
+  const ok = recordAttendance(room.qrCodeKey, container, emptyState);
+  if (ok) {
+    showToast('Check-in successful (simulated)', `Recorded attendance for ${room.qrCodeKey}.`, 'success');
+  }
 }
 
 function loadAttendance(container, emptyState) {
@@ -94,13 +140,14 @@ function recordAttendance(roomKey, container, emptyState) {
     const diff = (now - previousTime) / (1000 * 60);
     if (diff < scanIntervalMinutes) {
       showToast('Duplicate check-in blocked', `Already checked in for ${roomKey} within ${scanIntervalMinutes} minutes.`, 'warning');
-      return;
+      return false;
     }
   }
 
   attendance.push({ room: roomKey, date, time, status: 'Checked in' });
   storage.set('campusAttendance', attendance);
   renderAttendance(container, emptyState);
+  return true;
 }
 
 export function applySettings(settings) {

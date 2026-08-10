@@ -18,6 +18,7 @@ export function setupProfilePage() {
 
   const savedProfile = storage.get('campusUserProfile', defaultProfile);
   populateProfile(savedProfile, form, profileImagePreview, summary);
+  renderAccountSidebar();
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -31,6 +32,7 @@ export function setupProfilePage() {
 
     storage.set('campusUserProfile', profile);
     populateProfile(profile, form, profileImagePreview, summary);
+    renderAccountSidebar();
     showToast('Profile saved', 'Your profile information is stored locally.', 'success');
   });
 
@@ -38,6 +40,27 @@ export function setupProfilePage() {
     const url = profileImageInput.value.trim();
     if (url) profileImagePreview.innerHTML = `<img src="${url}" alt="Profile image" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`;
   });
+}
+
+export function renderAccountSidebar() {
+  const avatar = document.getElementById('accountAvatar');
+  const nameEl = document.getElementById('accountName');
+  const metaEl = document.getElementById('accountMeta');
+  if (!avatar && !nameEl && !metaEl) return;
+
+  const profile = storage.get('campusUserProfile', defaultProfile);
+  const image = (profile.profileImage || '').trim();
+
+  if (avatar) {
+    avatar.innerHTML = image ? `<img src="${image}" alt="Profile picture" />` : '👤';
+  }
+  if (nameEl) nameEl.textContent = profile.name || 'Guest user';
+  if (metaEl) {
+    metaEl.textContent =
+      profile.studentId && profile.course
+        ? `${profile.course} • ID ${profile.studentId}`
+        : profile.course || (profile.studentId ? `Student ID ${profile.studentId}` : 'Personalize your campus portal');
+  }
 }
 
 function populateProfile(profile, form, preview, summary) {
