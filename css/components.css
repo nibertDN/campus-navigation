@@ -199,10 +199,6 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-/* ------------------------------------------------------------
-   Empty state
-   ------------------------------------------------------------ */
-
 .empty-state {
   padding: 2rem;
   text-align: center;
@@ -215,10 +211,6 @@ tbody tr:last-child td {
   color: var(--muted);
   margin: 0;
 }
-
-/* ------------------------------------------------------------
-   Leaflet map markers
-   ------------------------------------------------------------ */
 
 .map-marker {
   display: grid;
@@ -236,6 +228,7 @@ tbody tr:last-child td {
 .marker-academic { background: linear-gradient(135deg, #6366f1, #4f46e5); }
 .marker-services { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
 .marker-facility { background: linear-gradient(135deg, #34d399, #16a34a); }
+.marker-safety { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
 
 .maplibregl-popup-content {
   border-radius: 14px;
@@ -259,9 +252,6 @@ tbody tr:last-child td {
   text-align: center;
 }
 
-/* ------------------------------------------------------------
-   Account sidebar (Profile & Settings)
-   ------------------------------------------------------------ */
 
 .account-layout {
   display: grid;

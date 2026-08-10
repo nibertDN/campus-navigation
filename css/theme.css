@@ -255,6 +255,11 @@ body.theme-dark .maplibregl-popup-content h3 {
   color: #ffffff;
 }
 
+body.theme-dark .maplibregl-popup-tip {
+  border-top-color: #111a2b;
+  border-bottom-color: #111a2b;
+}
+
 body.theme-dark .feature-icon {
   background: rgba(56, 189, 248, 0.12);
   color: #7dd3fc;
