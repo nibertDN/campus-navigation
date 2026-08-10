@@ -8,25 +8,105 @@ let buildingMarkers = [];
 let buildingsData = [];
 let deepQueryApplied = false;
 
+const BUILDING_FLOOR_HEIGHT = 3.5;
+const TYPE_COLORS = {
+  academic: '#6366f1',
+  services: '#0ea5e9',
+  facility: '#16a34a',
+  safety: '#f59e0b',
+};
+
 export async function initializeMap() {
   const mapContainer = document.getElementById('campusMap');
   if (!mapContainer) return;
+  if (!window.maplibregl) return;
 
   buildingsData = await loadJson('../data/buildings.json');
-  // Campus default center: Toledo City, Cebu (Wikipedia coordinates)
-  const campusCenter = { latitude: 10.383333, longitude: 123.65 };
-  const firstBuilding = buildingsData[0] || campusCenter;
+  const firstBuilding = buildingsData[0];
+  const isMini = mapContainer.classList.contains('campus-map--mini');
 
-  map = L.map(mapContainer).setView([firstBuilding.latitude, firstBuilding.longitude], 17);
+  map = new maplibregl.Map({
+    container: mapContainer,
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [firstBuilding.longitude, firstBuilding.latitude],
+    zoom: isMini ? 15 : 15.5,
+    pitch: isMini ? 52 : 56,
+    bearing: 14,
+    attributionControl: { compact: true },
+    maxPitch: 85,
+  });
 
-  // Use a minimal/non-streety basemap (Carto Positron) for a cleaner campus look
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap contributors &amp; CARTO',
-    maxZoom: 20,
-  }).addTo(map);
+  map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
 
-  createFilters();
-  renderMarkers(buildingsData);
+  map.on('load', () => {
+    addExtrusionLayers();
+    if (!isMini) createFilters();
+    renderMarkers(buildingsData);
+  });
+}
+
+function addExtrusionLayers() {
+  map.addSource('campus-buildings', { type: 'geojson', data: buildFootprintGeoJSON(buildingsData) });
+
+  map.addLayer({
+    id: 'campus-buildings-base',
+    type: 'fill',
+    source: 'campus-buildings',
+    paint: {
+      'fill-color': ['get', 'color'],
+      'fill-opacity': 0.35,
+    },
+  });
+
+  map.addLayer({
+    id: 'campus-buildings-3d',
+    type: 'fill-extrusion',
+    source: 'campus-buildings',
+    paint: {
+      'fill-extrusion-color': ['get', 'color'],
+      'fill-extrusion-height': ['get', 'height'],
+      'fill-extrusion-base': ['get', 'base'],
+      'fill-extrusion-opacity': 0.82,
+    },
+  });
+}
+
+function buildFootprintGeoJSON(buildings) {
+  return {
+    type: 'FeatureCollection',
+    features: buildings.map((building) => {
+      const sizeMeters = 16 + building.floorCount * 3;
+      const latDelta = sizeMeters / 111320;
+      const lngDelta = sizeMeters / (111320 * Math.cos((building.latitude * Math.PI) / 180));
+      const lat = building.latitude;
+      const lng = building.longitude;
+      return {
+        type: 'Feature',
+        properties: {
+          id: building.id,
+          name: building.name,
+          color: TYPE_COLORS[building.type] || '#0ea5e9',
+          height: building.floorCount * BUILDING_FLOOR_HEIGHT,
+          base: 0,
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [lng - lngDelta / 2, lat - latDelta / 2],
+            [lng + lngDelta / 2, lat - latDelta / 2],
+            [lng + lngDelta / 2, lat + latDelta / 2],
+            [lng - lngDelta / 2, lat + latDelta / 2],
+            [lng - lngDelta / 2, lat - latDelta / 2],
+          ]],
+        },
+      };
+    }),
+  };
+}
+
+function updateExtrusions(buildings) {
+  if (!map || !map.getSource('campus-buildings')) return;
+  map.getSource('campus-buildings').setData(buildFootprintGeoJSON(buildings));
 }
 
 function renderMarkers(buildings) {
@@ -35,15 +115,16 @@ function renderMarkers(buildings) {
   buildingMarkers = [];
 
   buildings.forEach((building) => {
-    const icon = L.divIcon({
-      className: `map-marker marker-${building.type}`,
-      html: `<span>${building.name[0]}</span>`,
-      iconSize: [34, 34],
-      iconAnchor: [17, 34],
-    });
+    const element = document.createElement('div');
+    element.className = `map-marker marker-${building.type}`;
+    element.innerHTML = `<span>${building.name[0]}</span>`;
 
-    const marker = L.marker([building.latitude, building.longitude], { icon }).addTo(map);
-    marker.bindPopup(createBuildingPopup(building));
+    const marker = new maplibregl.Marker({ element, anchor: 'bottom' })
+      .setLngLat([building.longitude, building.latitude])
+      .setPopup(
+        new maplibregl.Popup({ offset: 18, maxWidth: '330px' }).setHTML(createBuildingPopup(building))
+      )
+      .addTo(map);
     buildingMarkers.push(marker);
   });
 }
@@ -96,6 +177,7 @@ function applyFilters() {
     showToast('No buildings found', 'Try changing the filter or search term.', 'warning');
   }
   renderMarkers(filtered);
+  updateExtrusions(filtered);
 }
 
 export function setupBuildingDirectory() {

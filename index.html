@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="css/feed.css" />
   <link rel="stylesheet" href="css/theme.css" />
   <link rel="icon" type="image/png" href="assets/images/logo-cctc.png" />
+  <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -82,7 +83,7 @@
             <span class="status-chip">Live Map</span>
           </div>
           <div class="map-preview">
-            <div class="map-card">Map preview- with markers, directions, and building details.</div>
+            <div id="campusMap" class="campus-map campus-map--mini" aria-label="Live 3D campus map"></div>
           </div>
           <div class="preview-stats grid-3">
             <div class="mini-card"><strong>12</strong><span>Campus buildings</span></div>
@@ -282,6 +283,7 @@
   <div id="toastContainer" class="toast-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/lucide.min.js"></script>
+  <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

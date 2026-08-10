@@ -924,6 +924,10 @@ p {
   position: relative;
 }
 
+.campus-map--mini {
+  height: 300px;
+}
+
 .map-popup {
   position: absolute;
   top: 1rem;

@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="../css/feed.css" />
   <link rel="stylesheet" href="../css/theme.css" />
   <link rel="icon" type="image/png" href="../assets/images/logo-cctc.png" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" />
+  <link href="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.css" rel="stylesheet" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -98,8 +98,8 @@
         </aside>
 
         <section class="map-area panel-card">
-          <div id="campusMap" class="campus-map" aria-label="Campus map with building markers"></div>
-          <div id="mapPopup" class="map-popup hidden"></div>
+          <div id="campusMap" class="campus-map" aria-label="Live 3D campus map with building markers"></div>
+          <p class="map-hint">3D view — drag to rotate, pinch or Ctrl+drag to tilt, scroll to zoom.</p>
         </section>
       </section>
     </main>
@@ -111,7 +111,7 @@
   </div>
 
   <div id="toastContainer" class="toast-container"></div>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/maplibre-gl@5/dist/maplibre-gl.js"></script>
   <script type="module" src="../js/main.js"></script>
 </body>
 </html>

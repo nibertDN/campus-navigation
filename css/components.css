@@ -139,10 +139,6 @@
   padding: 0 1px;
 }
 
-/* ------------------------------------------------------------
-   Feature card accent
-   ------------------------------------------------------------ */
-
 .feature-card::before {
   content: '';
   position: absolute;
@@ -227,6 +223,8 @@ tbody tr:last-child td {
 .map-marker {
   display: grid;
   place-items: center;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   font-weight: 800;
   font-size: 0.95rem;
@@ -239,8 +237,26 @@ tbody tr:last-child td {
 .marker-services { background: linear-gradient(135deg, #38bdf8, #0ea5e9); }
 .marker-facility { background: linear-gradient(135deg, #34d399, #16a34a); }
 
-.leaflet-popup-content h3 {
+.maplibregl-popup-content {
+  border-radius: 14px;
+  color: var(--text);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.25);
+}
+
+.maplibregl-popup-content h3 {
   margin: 0 0 0.5rem;
+}
+
+.maplibregl-popup-content p {
+  margin: 0.35rem 0;
+  color: var(--muted);
+}
+
+.map-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 /* ------------------------------------------------------------

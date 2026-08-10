@@ -246,6 +246,15 @@ body.theme-dark .map-popup {
   border-color: #22304a;
 }
 
+body.theme-dark .maplibregl-popup-content {
+  background: #111a2b;
+  color: #e8eef8;
+}
+
+body.theme-dark .maplibregl-popup-content h3 {
+  color: #ffffff;
+}
+
 body.theme-dark .feature-icon {
   background: rgba(56, 189, 248, 0.12);
   color: #7dd3fc;
