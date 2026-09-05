@@ -7,6 +7,7 @@ import { setupProfilePage, renderAccountSidebar } from './profile.js';
 import { setupSettingsPage, applyTheme, loadSavedSettings } from './settings.js';
 import { showToast } from './notifications.js';
 import { storage } from './storage.js';
+import { loadJson } from './dataLoader.js';
 import { setupHomePage, setupAnnouncementsPage, setupEventsPage } from './feed.js';
 import { getRoomUsage } from './availability.js';
 
@@ -217,12 +218,14 @@ async function initializeSearch() {
   const searchInput = document.getElementById('globalSearch');
   if (!searchInput) return;
 
+  const base = currentPage.startsWith('index.html') || currentPage === '' ? './data/' : '../data/';
+
   const [buildings, rooms, schedules, announcements, events] = await Promise.all([
-    fetch(currentPage.startsWith('index.html') || currentPage === '' ? './data/buildings.json' : '../data/buildings.json').then((r) => r.json()),
-    fetch(currentPage.startsWith('index.html') || currentPage === '' ? './data/rooms.json' : '../data/rooms.json').then((r) => r.json()),
-    fetch(currentPage.startsWith('index.html') || currentPage === '' ? './data/schedules.json' : '../data/schedules.json').then((r) => r.json()),
-    fetch(currentPage.startsWith('index.html') || currentPage === '' ? './data/announcements.json' : '../data/announcements.json').then((r) => r.json()),
-    fetch(currentPage.startsWith('index.html') || currentPage === '' ? './data/events.json' : '../data/events.json').then((r) => r.json()),
+    loadJson(`${base}buildings.json`),
+    loadJson(`${base}rooms.json`),
+    loadJson(`${base}schedules.json`),
+    loadJson(`${base}announcements.json`),
+    loadJson(`${base}events.json`),
   ]);
 
   const pageUrl = (page, query) => {

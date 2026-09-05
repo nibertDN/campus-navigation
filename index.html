@@ -202,50 +202,14 @@
         </div>
       </section>
 
-      <section class="section-feed section-medium" aria-labelledby="feedHeading">
+      <section class="section-quicklinks section-medium" aria-labelledby="quickLinksHeading">
         <div class="section-heading">
-          <span class="eyebrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v-2a1 1 0 0 1 1-1h1.5l8-4.8a1 1 0 0 1 1.5.86v12.88a1 1 0 0 1-1.5.86L5.5 13H4a1 1 0 0 1-1-1z"/><path d="M17 8.5a4.2 4.2 0 0 1 0 7"/><path d="M19.5 6.8a7.4 7.4 0 0 1 0 10.4"/></svg> CCTCCampus feed</span>
-          <h2 id="feedHeading">Posts, announcements &amp; what's open right now.</h2>
-          <p>Follow school updates, publish campus announcements, and see live building availability — all in one place.</p>
+          <span class="eyebrow"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6h6M9 12h12M9 18h12"/><circle cx="6" cy="6" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="6" cy="18" r="2"/></svg> Quick access</span>
+          <h2 id="quickLinksHeading">Jump anywhere on campus.</h2>
+          <p>Shortcuts to every campus tool — star the ones you use most and they stay pinned at the front.</p>
         </div>
-
-        <div class="feed-layout">
-          <div class="post-composer panel-card">
-            <h3>Post an announcement</h3>
-            <p class="composer-sub">Share a campus update. It hits the feed instantly with a notification.</p>
-            <form id="postForm">
-              <div class="form-group">
-                <label for="postCategory">Category</label>
-                <select id="postCategory">
-                  <option value="General">General</option>
-                  <option value="Academic">Academic</option>
-                  <option value="Event">Event</option>
-                  <option value="Safety">Safety</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="postTitle">Title</label>
-                <input id="postTitle" type="text" placeholder="e.g. Library exam-week hours" maxlength="80" />
-              </div>
-              <div class="form-group">
-                <label for="postMessage">Message</label>
-                <textarea id="postMessage" rows="3" placeholder="What should the campus know?" maxlength="300"></textarea>
-              </div>
-              <button type="submit" class="button button-primary" style="width:100%;">Publish announcement</button>
-            </form>
-          </div>
-
-          <div>
-            <nav class="feed-filters" id="feedFilters" aria-label="Filter feed">
-              <button type="button" class="filter-chip active" data-filter="all">All</button>
-              <button type="button" class="filter-chip" data-filter="General">General</button>
-              <button type="button" class="filter-chip" data-filter="Academic">Academic</button>
-              <button type="button" class="filter-chip" data-filter="Event">Event</button>
-              <button type="button" class="filter-chip" data-filter="Safety">Safety</button>
-            </nav>
-            <div id="homeFeedList" class="feed-list"></div>
-          </div>
-        </div>
+        <div id="quickClock" class="quick-clock" aria-live="off"></div>
+        <div id="quickLinksGrid" class="quick-grid"></div>
       </section>
 
       <section class="section-open section-medium" aria-labelledby="openNowHeading">

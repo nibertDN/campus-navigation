@@ -141,7 +141,18 @@ export async function initializeMap() {
   if (!mapContainer) return;
   if (!window.maplibregl) return;
 
-  buildingsData = await loadJson('../data/buildings.json');
+  let rawData = { buildings: [] };
+  try {
+    const cctcData = await loadJson('../data/buildings-cctc.json');
+    if (cctcData && cctcData.buildings) {
+      rawData = { buildings: cctcData.buildings, campusBounds: cctcData.campusBounds || [], northArrow: cctcData.northArrow !== undefined ? cctcData.northArrow : true, scaleBar: cctcData.scaleBar !== undefined ? cctcData.scaleBar : true };
+    }
+  } catch (e) {
+    console.warn('CCTC data not found, using empty default');
+  }
+
+  // Normalize to array format for backward compatibility
+  buildingsData = rawData.buildings;
   const firstBuilding = buildingsData[0];
   const isMini = mapContainer.classList.contains('campus-map--mini');
   const initialTheme = isDarkTheme() ? 'dark' : 'light';
@@ -151,17 +162,28 @@ export async function initializeMap() {
     container: mapContainer,
     style: initialStyle.style,
     center: [firstBuilding.longitude, firstBuilding.latitude],
-    zoom: isMini ? 15 : 15.5,
-    pitch: isMini ? 52 : 56,
-    bearing: 14,
+    zoom: isMini ? 15 : 16,
+    pitch: isMini ? 52 : 60,
+    bearing: 0,
     attributionControl: { compact: true },
     maxPitch: 85,
   });
+
+  if (buildingsData.length > 0 && buildingsData.campusBounds) {
+    const bounds = buildingsData.campusBounds;
+    map.fitBounds(bounds, { padding: 50 });
+  } else {
+    const centerLng = firstBuilding ? firstBuilding.longitude : 123.63694;
+    const centerLat = firstBuilding ? firstBuilding.latitude : 10.37381;
+    map.fitBounds([[centerLng - 0.005, centerLat - 0.005], [centerLng + 0.005, centerLat + 0.005]], { padding: 50 });
+  }
 
   map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-left');
 
   handleMapLoad({ isMini });
   setupThemeSync(isMini);
+  addScaleBar();
+  addNorthArrow();
 }
 
 function handleMapLoad({ isMini }) {
@@ -385,4 +407,30 @@ export function setupBuildingDirectory() {
   categorySelect.addEventListener('change', loadAndRender);
   sortSelect.addEventListener('change', loadAndRender);
   loadAndRender();
+}
+
+function addScaleBar() {
+  if (!map) return;
+  const scaleBar = new maplibregl.ScaleBar({
+    maxWidth: 80,
+    unit: 'metric',
+    position: 'bottom-left',
+    color: '#4b5a73',
+    style: 'bar',
+  });
+  map.addControl(scaleBar, 'bottom-left');
+}
+
+function addNorthArrow() {
+  if (!map) return;
+  const northArrow = document.createElement('div');
+  northArrow.className = 'map-north-arrow';
+  northArrow.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 2L16 6M6 16L10 16M16 26L16 30M26 16L16 16"/><path d="M10 10L14 14M14 10L18 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polygon points="16 2 2 6 26 6" fill="currentColor"/><polygon points="16 30 2 26 30 26" fill="currentColor"/></svg>';
+  northArrow.style.position = 'absolute';
+  northArrow.style.bottom = '80px';
+  northArrow.style.left = '10px';
+  northArrow.style.width = '32px';
+  northArrow.style.height = '32px';
+  northArrow.style.zIndex = '1000';
+  map.getContainer().appendChild(northArrow);
 }

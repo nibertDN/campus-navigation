@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.6" generator="openstreetmap-cgimap 2.1.0 (1251258 spike-06.openstreetmap.org)" copyright="OpenStreetMap and contributors" attribution="http://www.openstreetmap.org/copyright" license="http://opendatacommons.org/licenses/odbl/1-0/">
+ <way id="643312980" visible="true" version="3" changeset="165872150" timestamp="2025-05-06T04:07:58Z" user="uᴉʍOꓨ" uid="6591426">
+  <nd ref="6054333547"/>
+  <nd ref="6054333548"/>
+  <nd ref="6054333549"/>
+  <nd ref="6054333550"/>
+  <nd ref="6054333551"/>
+  <nd ref="6054333552"/>
+  <nd ref="6054333547"/>
+  <tag k="addr:street" v="Magsaysay Street"/>
+  <tag k="amenity" v="college"/>
+  <tag k="name" v="Consolatrix College"/>
+ </way>
+</osm>

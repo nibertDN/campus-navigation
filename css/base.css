@@ -941,6 +941,16 @@ p {
   box-shadow: var(--shadow-lg);
 }
 
+.map-north-arrow {
+  width: 32px;
+  height: 32px;
+  position: absolute;
+  bottom: 80px;
+  left: 10px;
+  z-index: 1000;
+  -webkit-tap-highlight-color: transparent;
+}
+
 /* ------------------------------------------------------------
    Footer
    ------------------------------------------------------------ */

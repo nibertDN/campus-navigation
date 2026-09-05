@@ -30,6 +30,8 @@ const ICONS = {
   book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
   shield: '<path d="M12 3l7 3v5c0 4.5-3 8.2-7 10-4-1.8-7-5.5-7-10V6z"/><path d="M9.5 12l1.8 1.8 3.4-3.6"/>',
   list: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>',
+  sliders: '<path d="M3 8h11M17 8h4M3 16h4M11 16h10"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/>',
 };
 
 export function svgIcon(name, size = 20) {
@@ -48,6 +50,15 @@ const CATEGORY_ICON = {
   General: 'megaphone',
   default: 'megaphone',
 };
+
+function escapeHTML(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 function categoryIcon(name) {
   return CATEGORY_ICON[name] || CATEGORY_ICON.default;
@@ -85,19 +96,14 @@ function postCardHTML(post) {
       <div class="post-icon">${svgIcon(categoryIcon(post.category), 22)}</div>
       <div class="post-body">
         <div class="post-meta">
-          <span class="post-badge post-badge--${post.category.toLowerCase()}">${post.category}</span>
+          <span class="post-badge post-badge--${post.category.toLowerCase()}">${escapeHTML(post.category)}</span>
           <span class="post-date">${formatFeedDate(post.date)}</span>
         </div>
-        <h4>${post.title}</h4>
-        <p>${post.message}</p>
+        <h4>${escapeHTML(post.title)}</h4>
+        <p>${escapeHTML(post.message)}</p>
         <span class="post-source post-source--${post.source === 'You' ? 'you' : 'school'}">${post.source === 'You' ? 'Posted by you' : 'Posted by CCTCCampus'}</span>
       </div>
     </article>`;
-}
-
-function renderFeed(container, items) {
-  if (!container) return;
-  container.innerHTML = items.map(postCardHTML).join('');
 }
 
 function setupComposer(renderedCallback) {
@@ -149,33 +155,109 @@ function getActiveFilter() {
 }
 
 /* ------------------------------------------------------------
-   Home page: feed + composer + open now + upcoming events
+   Home page: quick links dashboard + open now + upcoming events
    ------------------------------------------------------------ */
 
+const FAVORITES_KEY = 'campusQuickFavorites';
+
+const QUICK_LINKS = [
+  { id: 'map', label: 'Campus Map', desc: 'Find buildings & facilities', href: 'pages/map.html', icon: 'pin' },
+  { id: 'buildings', label: 'Buildings', desc: 'Browse departments & hours', href: 'pages/buildings.html', icon: 'building' },
+  { id: 'classrooms', label: 'Classrooms', desc: 'Check rooms & availability', href: 'pages/classrooms.html', icon: 'list' },
+  { id: 'schedule', label: 'Schedule', desc: 'View daily timetables', href: 'pages/schedule.html', icon: 'clock' },
+  { id: 'qr', label: 'QR Check-in', desc: 'Scan & log attendance', href: 'pages/qr.html', icon: 'sliders' },
+  { id: 'lostfound', label: 'Lost & Found', desc: 'Report or find items', href: 'pages/lostfound.html', icon: 'search' },
+  { id: 'events', label: 'Events', desc: 'See what is happening', href: 'pages/events.html', icon: 'calendar' },
+  { id: 'announcements', label: 'Announcements', desc: 'Read campus updates', href: 'pages/announcements.html', icon: 'megaphone' },
+  { id: 'emergency', label: 'Emergency', desc: 'Safety contacts & info', href: 'pages/emergency.html', icon: 'shield' },
+  { id: 'profile', label: 'Profile', desc: 'Your account & activity', href: 'pages/profile.html', icon: 'users' },
+  { id: 'about', label: 'About', desc: 'Learn about this portal', href: 'pages/about.html', icon: 'book' },
+  { id: 'settings', label: 'Settings', desc: 'Theme, font & preferences', href: 'pages/settings.html', icon: 'sliders' },
+];
+
+const STAR_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/></svg>';
+
+function greetingForHour(hour) {
+  if (hour < 5) return 'Up late';
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  if (hour < 21) return 'Good evening';
+  return 'Good night';
+}
+
+function renderQuickClock() {
+  const clock = document.getElementById('quickClock');
+  if (!clock) return;
+
+  const update = () => {
+    const now = new Date();
+    clock.innerHTML = `
+      <span class="quick-clock-greeting">${greetingForHour(now.getHours())}</span>
+      <strong class="quick-clock-time">${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</strong>
+      <span class="quick-clock-date">${now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' })}</span>`;
+  };
+
+  update();
+  window.setInterval(update, 30 * 1000);
+}
+
+function renderQuickLinksGrid() {
+  const grid = document.getElementById('quickLinksGrid');
+  if (!grid) return;
+
+  const favorites = storage.get(FAVORITES_KEY, []);
+
+  const ordered = [...QUICK_LINKS].sort((a, b) => {
+    const aFav = favorites.includes(a.id) ? 0 : 1;
+    const bFav = favorites.includes(b.id) ? 0 : 1;
+    return aFav - bFav;
+  });
+
+  grid.innerHTML = ordered
+    .map((link) => {
+      const isFav = favorites.includes(link.id);
+      return `
+        <div class="quick-card${isFav ? ' quick-card--fav' : ''}">
+          <button type="button" class="quick-star" data-id="${link.id}" aria-pressed="${isFav}" aria-label="${isFav ? 'Remove from shortcuts' : 'Add to shortcuts'}">${STAR_SVG}</button>
+          <a class="quick-card-link" href="${link.href}">
+            <span class="quick-card-icon">${svgIcon(link.icon, 22)}</span>
+            <strong>${link.label}</strong>
+            <span class="quick-card-desc">${link.desc}</span>
+          </a>
+        </div>`;
+    })
+    .join('');
+
+  grid.querySelectorAll('.quick-star').forEach((star) => {
+    star.addEventListener('click', () => {
+      const id = star.dataset.id;
+      const current = storage.get(FAVORITES_KEY, []);
+      const next = current.includes(id) ? current.filter((entry) => entry !== id) : [...current, id];
+      storage.set(FAVORITES_KEY, next);
+      renderQuickLinksGrid();
+    });
+  });
+}
+
+export function setupQuickLinks() {
+  renderQuickClock();
+  renderQuickLinksGrid();
+}
+
 export async function setupHomePage() {
-  const feedList = document.getElementById('homeFeedList');
+  setupQuickLinks();
+
   const openNowGrid = document.getElementById('openNowGrid');
   const openNowStats = document.getElementById('openNowStats');
   const eventMiniList = document.getElementById('eventMiniList');
 
-  const [announcements, events, buildings, schedules, rooms] = await Promise.all([
-    loadJson(dataPath('announcements.json')),
+  const [events, buildings, schedules, rooms] = await Promise.all([
     loadJson(dataPath('events.json')),
     loadJson(dataPath('buildings.json')),
     loadJson(dataPath('schedules.json')),
     loadJson(dataPath('rooms.json')),
   ]);
-
-  if (feedList) {
-    const refresh = () => {
-      const items = buildPostItems(announcements, storage.get(POSTS_KEY, []));
-      const filter = getActiveFilter();
-      renderFeed(feedList, items.filter((item) => filter === 'all' || item.category === filter));
-    };
-    setupComposer(refresh);
-    setupFeedFilters(refresh);
-    refresh();
-  }
 
   if (openNowGrid || openNowStats) {
     renderOpenNow(buildings, rooms, schedules, openNowGrid, openNowStats);
@@ -189,9 +271,9 @@ export async function setupHomePage() {
         <a class="event-mini" href="pages/events.html">
           <div class="event-mini-icon">${svgIcon('calendar', 22)}</div>
           <div class="event-mini-body">
-            <span class="event-mini-date">${formatFeedDate(event.date)} • ${event.time}</span>
-            <strong>${event.title}</strong>
-            <span class="event-mini-loc">${event.location}</span>
+            <span class="event-mini-date">${formatFeedDate(event.date)} • ${escapeHTML(event.time)}</span>
+            <strong>${escapeHTML(event.title)}</strong>
+            <span class="event-mini-loc">${escapeHTML(event.location)}</span>
           </div>
         </a>`
       )
@@ -218,17 +300,10 @@ function renderOpenNow(buildings, rooms, schedules, grid, stats) {
   const openCount = openBuildings.length;
 
   let freeRooms = 0;
-  const freeSamples = [];
   rooms.forEach((room) => {
     const state = roomStatus(room);
     if (state.buildingOpen && !state.inUse) {
       freeRooms += 1;
-      if (freeSamples.length < 4) {
-        freeSamples.push({
-          label: `${room.buildingName} ${room.roomNumber}`,
-          subject: room.department,
-        });
-      }
     }
   });
 
@@ -245,7 +320,7 @@ function renderOpenNow(buildings, rooms, schedules, grid, stats) {
     const cards = openBuildings.slice(0, 6).map((building) => {
       const state = statusByBuilding.get(building.id);
       const roomCount = rooms.filter(
-        (room) => room.buildingId === building.id && roomStatus(room).buildingOpen && !roomStatus(room).inUse
+        (room) => room.buildingId === building.id && !roomStatus(room).inUse
       ).length;
       return `
         <a class="open-card" href="pages/buildings.html">
@@ -341,12 +416,12 @@ export async function setupEventsPage() {
       card.innerHTML = `
       <div class="event-card-head">
         <span class="post-icon">${svgIcon('calendar', 22)}</span>
-        <span class="post-badge post-badge--${event.category.toLowerCase()}">${event.category}</span>
+        <span class="post-badge post-badge--${event.category.toLowerCase()}">${escapeHTML(event.category)}</span>
       </div>
-      <h3>${event.title}</h3>
-      <p class="event-card-date">${formatFeedDate(event.date)} • ${event.time}</p>
-      <p class="event-card-loc">${svgIcon('pin', 15)} ${event.location}</p>
-      <p>${event.description}</p>
+      <h3>${escapeHTML(event.title)}</h3>
+      <p class="event-card-date">${formatFeedDate(event.date)} • ${escapeHTML(event.time)}</p>
+      <p class="event-card-loc">${svgIcon('pin', 15)} ${escapeHTML(event.location)}</p>
+      <p>${escapeHTML(event.description)}</p>
       <button type="button" class="button ${registered ? 'button-secondary' : 'button-primary'} event-register" data-id="${event.id}" ${registered ? 'disabled' : ''}>
         ${registered ? 'Registered ✓' : 'Register for this event'}
       </button>`;
